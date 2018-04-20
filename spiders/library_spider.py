@@ -20,6 +20,7 @@ class QuotesSpider(scrapy.Spider):
 
     def parse(self, response):
         # no ppt, html, doc, xls, xlsx, bmp, 
+        unwanted_formats = ['.ppt', '.html', '.doc', '.xls', '.xlsx', '.bmp']
         formats = ['.png', 'jpeg', '.zip', '.gif', '.pdf', '.csv', 'pdf', 'jpg','.txt']
         hrefs = response.css('table a::attr(href)').extract()
         for link in hrefs:
@@ -29,6 +30,8 @@ class QuotesSpider(scrapy.Spider):
                 print("full link: " + full_link)
                 if any(x in full_link.lower() for x in formats):
                     yield files_to_download(file_urls=[full_link], title=full_link[31:])
+                elif any(x in full_link.lower() for x in unwanted_formats):
+                    pass
                 else:
                     try:
                         yield scrapy.Request(url=full_link, callback=self.parse)
